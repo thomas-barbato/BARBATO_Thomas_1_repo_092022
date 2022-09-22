@@ -6,4 +6,4 @@ To make this work:
 1) Create venv : python3 -m venv venv
 2) Activate venv : cd /venv/Scripts/ ; ./activate
 3) cd .. cd ..
-4) pip install -r requirement
+4) pip install -r requirements.txt
