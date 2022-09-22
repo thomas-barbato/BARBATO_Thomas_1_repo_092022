@@ -38,10 +38,11 @@ if request_response.ok:
         # there is no class to search these elements, that's why i use those loops
         section_title : list = [(element.text).lower().replace(' ', '_') for element in soup.find('table', class_= 'table-striped').findAll('th')]
         section_content : list = [element.text for element in soup.find('table', class_= 'table-striped').findAll('td')]
+        print(section_title, section_content)
         # Create new dict to store all data recieved
         section_merged_dict : dict = {section_title[i]: section_content[i] for i in range(len(section_title))}
         
-        title : str = soup.find('div', {'class','product_main'}).find('h1').text
+        title : str = soup.find('div', class_='product_main').find('h1').text
         # regexp: check if there is whitespace and replace them by whitespace (used to remove multiple whitespace)
         number_available : str = re.sub('\s+',' ', (soup.find('p', class_= 'instock availability').text).replace('\n', ''))
         product_description : str = soup.find('div', {'id': 'product_description'}).find_next('p').text
