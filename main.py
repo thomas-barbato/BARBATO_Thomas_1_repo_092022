@@ -15,14 +15,14 @@ if os.path.isdir("results") is False:
 parent_dir = os.path.join(os.getcwd(), "results")
 
 # Base website url
-url: str = "http://books.toscrape.com/"
+website_url: str = "http://books.toscrape.com/"
 
 # store all page links , for futur use.
 # paging : list = [ "http://books.toscrape.com/" + "catalogue/page-{}.html".format(e) for e in range(1,50)]
 
 # Create new request object
 # use url (page_link later with a while loop) as arg
-request_response = requests.get(url)
+request_response = requests.get(website_url)
 # check if website is reachable
 if request_response.ok:
 
@@ -40,7 +40,7 @@ if request_response.ok:
     books_category: dict = {
         (category.text)
         .replace(" ", "")
-        .replace("\n", ""): "{}".format("http://books.toscrape.com/" + category["href"])
+        .replace("\n", ""): "{}".format(website_url + category["href"])
         for category in soup.find("div", class_="side_categories")
         .find("ul", class_="nav nav-list")
         .findAll("a")
@@ -101,7 +101,7 @@ if request_response.ok:
 
                     # Find all books url on page
                     for book in soup.find_all("div", class_="image_container"):
-                        book_url = "http://books.toscrape.com/catalogue/" + (
+                        book_url = website_url + "catalogue/" + (
                             book.find("a")["href"]
                         ).replace("../", "")
                         selected_book_url_request = requests.get(book_url)
@@ -155,7 +155,7 @@ if request_response.ok:
                                 "class"
                             ][1]
                             image_url: str = "{}{}".format(
-                                "http://books.toscrape.com/",
+                                website_url,
                                 soup.find("img")["src"].replace("../", ""),
                             )
 
