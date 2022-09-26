@@ -200,7 +200,6 @@ if request_response.ok:
                                 is False
                             ):
                                 img_name : str = image_url.split("/")[-1]
-                                print(image_url)
                                 with urlopen(image_url) as img_data:
                                     # opened in write binary ; used when you are not writing common text
                                     # for image, video etc

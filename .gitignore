@@ -131,3 +131,5 @@ dmypy.json
 # Result directory
 .results/*
 .results/
+results
+results/
