@@ -14,4 +14,4 @@ pylint main.py
 
 (avoid the repo's name... )
 
-note : 9.05 / 10
+note : 9.37 / 10

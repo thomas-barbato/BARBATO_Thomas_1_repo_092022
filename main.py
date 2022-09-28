@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""System module."""
 from urllib.request import urlopen
 import csv
 import os
