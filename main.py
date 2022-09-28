@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-from bs4 import BeautifulSoup
-import requests
 from urllib.request import urlopen
 import csv
-import re
 import os
+import requests
+from bs4 import BeautifulSoup
 
 # Check if results directory exist
 # if not : create it
@@ -18,11 +17,10 @@ parent_dir = os.path.join(os.getcwd(), "results")
 website_url: str = "http://books.toscrape.com/"
 
 # store all page links , for futur use.
-# paging : list = [ "http://books.toscrape.com/" + "catalogue/page-{}.html".format(e) for e in range(1,50)]
 
 # Create new request object
 # use url (page_link later with a while loop) as arg
-request_response = requests.get(website_url)
+request_response = requests.get(website_url, timeout=10)
 # check if website is reachable
 if request_response.ok:
 
@@ -32,7 +30,6 @@ if request_response.ok:
     # using .content and not text to get data has byte
     # to avoid utf8 problems
     soup = BeautifulSoup(request_response.content, "html.parser")
-    # current = (soup.find('li', class_="current").text).split()[-1]
 
     # Get book collection url and category
     # stock it in dict
@@ -52,19 +49,19 @@ if request_response.ok:
         if os.path.exists(os.path.join(parent_dir, cat)) is False:
             os.mkdir(os.path.join(parent_dir, cat))
         # get category pwd
-        category_pwd : str = os.path.join(parent_dir, cat)
+        category_pwd: str = os.path.join(parent_dir, cat)
         # check if every category have img direct
         # if not : create it.
         if os.path.exists(os.path.join(category_pwd, "img")) is False:
             os.mkdir(os.path.join(category_pwd, "img"))
             # Define img_directory variable
-        img_directory : str = os.path.join(category_pwd, "img")
+        img_directory: str = os.path.join(category_pwd, "img")
         # Create new request object
-        selected_book_category_url_request = requests.get(url)
+        selected_book_category_url_request = requests.get(url, timeout=10)
         # check if website is reachable
         if selected_book_category_url_request.ok:
             # reset book_url_list
-            book_url_list : list = []
+            book_url_list: list = []
             # Create a new soup instance, take selected_book_category_url.text
             # using .content and not text to get data has byte
             # to avoid utf8 problems
@@ -87,7 +84,7 @@ if request_response.ok:
                     else url
                 )
 
-                category_page_url_request = requests.get(category_page_url)
+                category_page_url_request = requests.get(category_page_url, timeout=10)
                 # check if website is reachable
                 if category_page_url_request.ok:
                     print("Working on : {}".format(cat))
@@ -101,17 +98,20 @@ if request_response.ok:
 
                     # Find all books url on page
                     for book in soup.find_all("div", class_="image_container"):
-                        book_url = website_url + "catalogue/" + (
-                            book.find("a")["href"]
-                        ).replace("../", "")
-                        selected_book_url_request = requests.get(book_url)
+                        book_url = (
+                            website_url
+                            + "catalogue/"
+                            + (book.find("a")["href"]).replace("../", "")
+                        )
+                        selected_book_url_request = requests.get(book_url, timeout=10)
                         if selected_book_url_request.ok:
                             soup = BeautifulSoup(
                                 selected_book_url_request.content, "html.parser"
                             )
 
                             # Find all td inside a table which it have "table-striped" class
-                            # there is no class to search these elements, that's why i use those loops
+                            # there is no class to search these elements
+                            # that's why i use those loops
                             section_title: list = [
                                 (element.text).lower().replace(" ", "_")
                                 for element in soup.find(
@@ -142,8 +142,6 @@ if request_response.ok:
                                 )
                             except AttributeError:
                                 pass
-                            # category : str = (soup.find('li', class_= 'active').find_previous('li').text).replace('\n','')
-                            # review_rating DON'T WORK.
                             review_rating_value = {
                                 "One": 1,
                                 "Two": 2,
@@ -199,9 +197,10 @@ if request_response.ok:
                                 )
                                 is False
                             ):
-                                img_name : str = image_url.split("/")[-1]
+                                img_name: str = image_url.split("/")[-1]
                                 with urlopen(image_url) as img_data:
-                                    # opened in write binary ; used when you are not writing common text
+                                    # opened in write binary
+                                    # used when you are not writing common text
                                     # for image, video etc
                                     with open(
                                         os.path.join(
@@ -211,7 +210,7 @@ if request_response.ok:
                                     ) as image:
                                         image.write(img_data.read())
 
-                            this_book : str = os.path.join(category_pwd, cat + ".csv")
+                            this_book: str = os.path.join(category_pwd, cat + ".csv")
                             # check if "this_book".csv exists
                             # if it returns False then:
                             # create it in write mod and
