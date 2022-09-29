@@ -19,6 +19,30 @@ website_url: str = "http://books.toscrape.com/"
 
 # store all page links , for futur use.
 
+
+# Get book collection url and category
+# stock it in dict
+# ignore "Books" because it's all books...
+def get_categories():
+    """
+    Return a dict which contain
+    categorie names and their urls
+    :returns: this is a description of what is returned
+    """
+    categories: dict = {}
+    anchors = (
+        soup.find("div", class_="side_categories")
+        .find("ul", class_="nav nav-list")
+        .findAll("a")
+    )
+    for category in anchors:
+        if (category.text).replace(" ", "").replace("\n", "") != "Books":
+            categories[
+                category.text.replace(" ", "").replace("\n", "")
+            ] = f"{website_url}{category['href']}"
+    return categories
+
+
 # Create new request object
 # use url (page_link later with a while loop) as arg
 request_response = requests.get(website_url, timeout=10)
@@ -32,18 +56,8 @@ if request_response.ok:
     # to avoid utf8 problems
     soup = BeautifulSoup(request_response.content, "html.parser")
 
-    # Get book collection url and category
-    # stock it in dict
-    # ignore "Books" because it's all books...
-    books_category: dict = {
-        (category.text)
-        .replace(" ", "")
-        .replace("\n", ""): "{}".format(website_url + category["href"])
-        for category in soup.find("div", class_="side_categories")
-        .find("ul", class_="nav nav-list")
-        .findAll("a")
-        if (category.text).replace(" ", "").replace("\n", "") != "Books"
-    }
+    books_category = get_categories()
+
     for cat, url in books_category.items():
         # check if every category have directory
         # if not : create it
@@ -80,15 +94,13 @@ if request_response.ok:
                 # delete index.html in url
                 # add page number taken from for loop
                 category_page_url: str = (
-                    url.replace("index.html", "") + "page-{}.html".format(i)
-                    if i > 1
-                    else url
+                    url.replace("index.html", "") + f"page-{i}.html" if i > 1 else url
                 )
 
                 category_page_url_request = requests.get(category_page_url, timeout=10)
                 # check if website is reachable
                 if category_page_url_request.ok:
-                    print("Working on : {}".format(cat))
+                    print(f"Working on : {cat} page : {i}")
 
                     # Create a new soup instance, take selected_book_category_url.text
                     # using .content and not text to get data has byte
@@ -153,10 +165,8 @@ if request_response.ok:
                             review_rating: str = soup.find("p", class_="star-rating")[
                                 "class"
                             ][1]
-                            image_url: str = "{}{}".format(
-                                website_url,
-                                soup.find("img")["src"].replace("../", ""),
-                            )
+                            img_src = soup.find("img")["src"].replace("../", "")
+                            image_url: str = f"{website_url}{img_src}"
 
                             # Store all fields used in csv file.
                             fields: list = [
